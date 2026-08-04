@@ -1,0 +1,226 @@
+-- create
+CREATE TABLE produto (
+id_produto INT AUTO_INCREMENT PRIMARY KEY,
+codigo_barras VARCHAR (100) NOT NULL,
+nome VARCHAR (100) NOT NULL,
+preco_venda decimal
+);
+CREATE TABLE operador (
+id_operador int auto_increment primary key,
+nome varchar (100) not null,
+matricula varchar (100) not null
+);
+create table caixa_terminal (
+id_terminal int auto_increment primary key,
+status_terminal VARCHAR (100)
+);
+create table venda (
+id_venda int auto_increment primary key,
+data_hora datetime not null,
+id_terminal int not null,
+id_operador int not null,
+valor_total decimal (10, 2) not null,
+foreign key (id_terminal) references caixa_terminal (id_terminal),
+foreign key (id_operador) references operador (id_operador)
+);
+create table venda_item (
+id_venda_item int auto_increment primary key,
+id_venda int not null,
+id_produto int not null,
+quantidade decimal (10, 3) not null,
+preco_unitario_pago decimal (10, 2) not null,
+subtotal decimal (10, 2) generated always as (quantidade * preco_unitario_pago) stored,
+foreign key (id_venda) references venda (id_venda),
+foreign key (id_produto) references produto (id_produto)
+);
+create table forma_pagamento (
+id_forma_pagto int auto_increment primary key not null,
+descricao varchar (100)
+
+);
+create table venda_pagamento (
+id_venda_pagto int auto_increment primary key not null,
+id_venda int not null,
+id_forma_pagto int not null,
+valor_pago decimal (10, 2) not null
+);
+-- insert
+INSERT INTO produto (codigo_barras, nome, preco_venda) VALUES
+('7891000100103', 'Arroz', 18.90),
+('7891000200203', 'Feijão', 8.50),
+('7891000300303', 'Óleo de Soja', 6.99),
+('7891000400403', 'Macarrão', 4.25),
+('7891000500503', 'Açúcar', 4.75),
+('7891000600603', 'Café', 14.90),
+('7891000700703', 'Leite Integral', 5.49),
+('7891000800803', 'Manteiga', 9.80),
+('7891000900903', 'Pão de Forma', 7.30),
+('7891001001003', 'Detergente', 2.99);
+INSERT INTO operador (nome, matricula) VALUES
+('Ana Paula Silva', 'OP001'),
+('Carlos Eduardo', 'OP002'),
+('Fernanda Souza', 'OP003');
+INSERT INTO caixa_terminal (status_terminal) VALUES
+('ATIVO'),
+('ATIVO'),
+('INATIVO');
+INSERT INTO forma_pagamento (descricao) VALUES
+('Dinheiro'),
+('Cartão de Débito'),
+('Cartão de Crédito'),
+('PIX');
+INSERT INTO venda (data_hora, id_terminal, id_operador, valor_total) VALUES
+('2025-06-01 08:30:00', 1, 1, 52.14),
+('2025-06-01 10:15:00', 2, 2, 29.38),
+('2025-06-02 09:00:00', 1, 3, 41.57),
+('2025-06-03 14:20:00', 1, 1, 18.90),
+('2025-06-03 16:45:00', 2, 2, 67.22),
+('2025-06-04 11:00:00', 1, 3, 34.80),
+('2025-06-05 08:50:00', 2, 1, 22.47),
+('2025-06-05 13:30:00', 1, 2, 89.10),
+('2025-06-06 09:10:00', 2, 3, 15.99),
+
+('2025-06-06 17:00:00', 1, 1, 47.65);
+INSERT INTO venda_item (id_venda, id_produto, quantidade, preco_unitario_pago)
+VALUES
+-- Venda 1
+(1, 1, 2, 18.90), -- Arroz x2
+(1, 3, 2, 6.99), -- Óleo x2
+-- Venda 2
+(2, 2, 2, 8.50), -- Feijão x2
+(2, 4, 3, 4.25), -- Macarrão x3
+-- Venda 3
+(3, 5, 2, 4.75), -- Açúcar x2
+(3, 6, 1, 14.90), -- Café x1
+(3, 7, 3, 5.49), -- Leite x3
+-- Venda 4
+(4, 1, 1, 18.90), -- Arroz x1
+-- Venda 5
+(5, 8, 2, 9.80), -- Manteiga x2
+(5, 9, 3, 7.30), -- Pão x3
+(5, 6, 2, 14.90), -- Café x2
+-- Venda 6
+(6, 10, 4, 2.99), -- Detergente x4
+(6, 7, 2, 5.49), -- Leite x2
+(6, 4, 3, 4.25), -- Macarrão x3
+-- Venda 7
+(7, 5, 2, 4.75), -- Açúcar x2
+(7, 3, 1, 6.99), -- Óleo x1
+(7, 2, 1, 8.50), -- Feijão x1
+-- Venda 8
+(8, 1, 2, 18.90), -- Arroz x2
+(8, 6, 2, 14.90), -- Café x2
+(8, 8, 1, 9.80), -- Manteiga x1
+(8, 9, 1, 7.30), -- Pão x1
+-- Venda 9
+(9, 10, 2, 2.99), -- Detergente x2
+(9, 4, 1, 4.25), -- Macarrão x1
+(9, 5, 1, 4.75), -- Açúcar x1
+-- Venda 10
+(10, 7, 3, 5.49), -- Leite x3
+(10, 2, 2, 8.50), -- Feijão x2
+(10, 9, 1, 7.30); -- Pão x1
+INSERT INTO venda_pagamento (id_venda, id_forma_pagto, valor_pago) VALUES
+(1, 1, 52.14), -- Dinheiro
+(2, 2, 29.38), -- Débito
+(3, 3, 41.57), -- Crédito
+(4, 4, 18.90), -- PIX
+(5, 2, 67.22), -- Débito
+
+(6, 1, 34.80), -- Dinheiro
+(7, 4, 22.47), -- PIX
+(8, 3, 89.10), -- Crédito
+(9, 1, 15.99), -- Dinheiro
+(10, 2, 47.65); -- Débito
+-- relatórios
+-- cadastros
+SELECT
+p.id_produto,
+p.codigo_barras,
+p.nome,
+p.preco_venda
+FROM produto p
+ORDER BY p.nome;
+SELECT
+o.id_operador,
+o.matricula,
+o.nome
+FROM operador o
+ORDER BY o.nome;
+SELECT
+t.id_terminal,
+t.status_terminal
+FROM caixa_terminal t
+ORDER BY t.id_terminal;
+SELECT
+f.id_forma_pagto,
+f.descricao
+FROM forma_pagamento f
+ORDER BY f.id_forma_pagto;
+-- vendas
+SELECT
+v.id_venda,
+DATE_FORMAT(v.data_hora, '%d/%m/%Y %H:%i') AS data_hora,
+t.id_terminal,
+o.nome AS operador,
+v.valor_total
+FROM venda v
+JOIN caixa_terminal t ON t.id_terminal = v.id_terminal
+JOIN operador o ON o.id_operador = v.id_operador
+WHERE DATE(v.data_hora) BETWEEN '2025-06-01' AND '2025-06-06'
+ORDER BY v.data_hora;
+
+SELECT
+v.id_venda,
+DATE_FORMAT(v.data_hora, '%d/%m/%Y %H:%i') AS data_hora,
+p.codigo_barras,
+p.nome AS produto,
+vi.quantidade,
+vi.preco_unitario_pago,
+vi.subtotal
+FROM venda_item vi
+JOIN venda v ON v.id_venda = vi.id_venda
+JOIN produto p ON p.id_produto = vi.id_produto
+WHERE DATE(v.data_hora) BETWEEN '2025-06-01' AND '2025-06-06'
+ORDER BY v.data_hora, p.nome;
+SELECT
+fp.descricao AS forma_pagamento,
+COUNT(vp.id_venda) AS qtd_vendas,
+SUM(vp.valor_pago) AS total_recebido
+FROM venda_pagamento vp
+JOIN forma_pagamento fp ON fp.id_forma_pagto = vp.id_forma_pagto
+JOIN venda v ON v.id_venda = vp.id_venda
+WHERE DATE(v.data_hora) BETWEEN '2025-06-01' AND '2025-06-06'
+GROUP BY fp.id_forma_pagto, fp.descricao
+ORDER BY total_recebido DESC;
+SELECT
+p.codigo_barras,
+p.nome AS produto,
+SUM(vi.quantidade) AS qtd_total_vendida,
+SUM(vi.subtotal) AS receita_total
+FROM venda_item vi
+JOIN produto p ON p.id_produto = vi.id_produto
+JOIN venda v ON v.id_venda = vi.id_venda
+WHERE DATE(v.data_hora) BETWEEN '2025-06-01' AND '2025-06-06'
+GROUP BY p.id_produto, p.codigo_barras, p.nome
+ORDER BY qtd_total_vendida DESC;
+SELECT
+o.matricula,
+o.nome AS operador,
+COUNT(v.id_venda) AS qtd_vendas,
+SUM(v.valor_total) AS total_vendido
+FROM venda v
+JOIN operador o ON o.id_operador = v.id_operador
+WHERE DATE(v.data_hora) BETWEEN '2025-06-01' AND '2025-06-06'
+GROUP BY o.id_operador, o.matricula, o.nome
+ORDER BY total_vendido DESC;
+
+-- resumo geral
+SELECT
+DATE(v.data_hora) AS data,
+COUNT(v.id_venda) AS qtd_vendas,
+SUM(v.valor_total) AS total_do_dia
+FROM venda v
+WHERE DATE(v.data_hora) BETWEEN '2025-06-01' AND '2025-06-06'
+GROUP BY DATE(v.data_hora)
+ORDER BY data;
